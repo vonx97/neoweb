@@ -1,13 +1,20 @@
-package com.neosoft.neoweb.data;
+package com.neosoft.neoweb.entity;
 
-import java.util.stream.Stream;
+import javax.persistence.*;
 
+@Entity
+@Table(name = "USERS")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String creationDate;
     private String name;
     private String surname;
+
+    @Column(name = "IDENTITY_NUMBER")
     private String identityNumber;
     private String country;
     private String city;
@@ -15,10 +22,15 @@ public class User {
     private String address;
     private String email;
     private String phone;
+
+    @Column(unique = true)
     private String username;
     private String password;
     private String lastLoginDate;
+
+    @Column(length = 512)
     private String refreshToken;
+
 
     public int getId() {
         return id;
@@ -107,6 +119,7 @@ public class User {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
 
     public String getUsername() {
         return username;

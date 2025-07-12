@@ -1,6 +1,6 @@
-package com.neosoft.neoweb.Services;
+package com.neosoft.neoweb.services;
 
-import com.neosoft.neoweb.Configs.UpdateProperties;
+import com.neosoft.neoweb.configs.UpdateProperties;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

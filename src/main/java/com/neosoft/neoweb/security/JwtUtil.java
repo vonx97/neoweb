@@ -11,7 +11,7 @@ public class JwtUtil {
 
     private static final String SECRET_KEY = "supersecretkeysupersecretkey123456"; // minimum 32 karakter
     private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
-    private static final long validityInMs = 15000;
+    private static final long validityInMs  = 60 * 60 * 1000; //60dk
 
     public static String generateToken(String username) {
         return Jwts.builder()

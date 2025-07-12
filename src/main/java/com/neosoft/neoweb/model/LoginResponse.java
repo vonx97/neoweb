@@ -5,11 +5,13 @@ public class LoginResponse {
     private boolean success;
     private String message;
     private String token;
+    private String refreshToken;
 
-    public LoginResponse(boolean success, String message,String token) {
+    public LoginResponse(boolean success, String message,String token,String refreshToken) {
         this.success = success;
         this.message = message;
         this.token = token;
+        this.refreshToken = refreshToken;
     }
 
     public boolean isSuccess() {
@@ -22,5 +24,9 @@ public class LoginResponse {
 
     public String getToken() {
         return token;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
     }
 }

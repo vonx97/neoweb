@@ -12,17 +12,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())  // API için CSRF kapalı
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/neoweb/login").permitAll()  // login endpoint açık
-                        .anyRequest().authenticated()               // diğerleri giriş ister
-                )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // session yok
-
+                .csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/neoweb/login","/neoweb/refresh-token").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     // Eğer istersen burada jwtAuthenticationFilter() bean’i tanımlayabilirsin
 }

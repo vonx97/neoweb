@@ -1,6 +1,7 @@
 package controller;
 
-import com.neosoft.neoweb.Services.UpdateService;
+import com.neosoft.neoweb.services.UpdateService;
+import com.neosoft.neoweb.security.JwtUtil;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +24,25 @@ public class UpdatePackageController {
         this.updateService = updateService;
     }
 
+    @GetMapping("/check")
+    public ResponseEntity<String> checkVersion(
+            @RequestParam("version") String clientVersion,
+            @RequestHeader("Authorization") String token) throws IOException {
+
+        if (!isValidToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String latestVersion = updateService.getLatestVersion();
+
+        if (latestVersion.equals(clientVersion)) {
+            return ResponseEntity.ok("up-to-date");
+        } else {
+            return ResponseEntity.ok("update-available:" + latestVersion);
+        }
+    }
+
+
     @GetMapping("/package/{version}")
     public ResponseEntity<Resource> downloadPackage(
             @PathVariable String version,
@@ -39,15 +59,29 @@ public class UpdatePackageController {
         }
 
         Resource resource = new UrlResource(zipPath.toUri());
+        long contentLength = Files.size(zipPath);
 
         return ResponseEntity.ok()
+                .contentLength(contentLength)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"client-" + version + ".zip\"")
                 .body(resource);
     }
 
-    private boolean isValidToken(String token) {
-        // Token doğrulama örneği
-        return token != null && token.startsWith("Bearer ");
+    public boolean isValidToken(String token) {
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            return false;
+        }
+
+        String jwt = token.substring(7); // "Bearer " kısmını çıkar
+
+        try {
+            String username = JwtUtil.validateTokenAndGetUsername(jwt);
+            return username != null;  // Token geçerli ve doğrulanmış demek
+        } catch (Exception e) {
+            return false;  // Token geçersiz
+        }
     }
+
 }

@@ -1,8 +1,9 @@
 package controller;
 
-import com.neosoft.neoweb.Services.UpdateService;
+import com.neosoft.neoweb.services.UpdateService;
 import com.neosoft.neoweb.model.VersionRequest;
 import com.neosoft.neoweb.model.VersionResponse;
+import com.neosoft.neoweb.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,9 +59,20 @@ public class VersionController {
         }
     }
 
-    private boolean isValidToken(String token) {
-        // Gerçek uygulamada JWT veya DB tabanlı doğrulama yapılmalı
-        return token != null && token.startsWith("Bearer ");
+    public boolean isValidToken(String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return false;
+        }
+
+        String jwt = token.substring(7); // "Bearer " kısmını çıkar
+
+        try {
+            String username = JwtUtil.validateTokenAndGetUsername(jwt);
+            return username != null;  // Token geçerli ve doğrulanmış demek
+        } catch (Exception e) {
+            return false;  // Token geçersiz
+        }
     }
+
 
 }

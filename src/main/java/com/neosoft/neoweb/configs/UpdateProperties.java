@@ -1,4 +1,4 @@
-package com.neosoft.neoweb.Configs;
+package com.neosoft.neoweb.configs;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

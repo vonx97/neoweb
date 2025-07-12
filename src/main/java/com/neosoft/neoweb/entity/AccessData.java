@@ -1,4 +1,4 @@
-package com.neosoft.neoweb.data;
+package com.neosoft.neoweb.entity;
 
 public class AccessData {
 
