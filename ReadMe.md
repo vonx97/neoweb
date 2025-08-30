@@ -78,7 +78,4 @@ Bu proje Spring Boot ile geliştirilmiş bir backend uygulamasıdır. Aşağıda
 
 ---
 
-## 🔑 Authorization
-
-Tüm korumalı endpointlerde aşağıdaki header kullanılmalıdır:
 
