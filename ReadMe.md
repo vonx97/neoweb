@@ -1,4 +1,4 @@
-# Proje Notları - 2025-07-11
+# Proje Notları - 2025-08-30
 
 ## Yapılan İşler
 
@@ -35,3 +35,50 @@
   - Güncelleme paketleri `client-<version>.zip` olarak saklanır ve gönderilir.
   - Dosya indirirken `Content-Length` header’ı eklenerek istemcinin indirme ilerlemesini takip etmesi sağlandı.
   - Tüm güncelleme endpointleri JWT ile korundu, token doğrulaması yapıldı.
+
+
+# ENDPOINTLER
+
+
+Bu proje Spring Boot ile geliştirilmiş bir backend uygulamasıdır. Aşağıda mevcut endpointler listelenmiştir.
+
+---
+
+## 🔐 Authentication
+
+| Method | Endpoint | Body | Headers | Response |
+|--------|----------|------|---------|----------|
+| **POST** | `/neoweb/login` | ```json { "username": "user", "password": "pass" } ``` | - | ```json { "success": true, "message": "Giriş başarılı", "token": "...", "refreshToken": "..." } ``` |
+| **POST** | `/neoweb/refresh-token` | ```json { "username": "user", "refreshToken": "..." } ``` | - | ```json { "accessToken": "..." } ``` |
+
+---
+
+## 📦 Update Package API
+
+| Method | Endpoint | Params / Body | Headers | Response |
+|--------|----------|---------------|---------|----------|
+| **GET** | `/neoweb/update/check` | `?version=1.0.0` | `Authorization: Bearer <token>` | `"up-to-date"` veya `"update-available:<latestVersion>"` |
+| **GET** | `/neoweb/update/package/{version}` | - | `Authorization: Bearer <token>` | ZIP dosyası (`client-{version}.zip`) |
+
+---
+
+## 🖥️ Client Version API
+
+| Method | Endpoint | Body | Headers | Response |
+|--------|----------|------|---------|----------|
+| **POST** | `/neoweb/client/check-version` | ```json { "clientId": "abc", "version": "1.0.0" } ``` | `Authorization: Bearer <token>` | ```json { "upToDate": false, "latestVersion": "1.3.0", "downloadPath": "/api/update/package/1.3.0", "releaseNotes": "Yeni sürüm mevcut. Yüklemeniz önerilir.", "checksum": "..." } ``` |
+
+---
+
+## 🧪 Test API
+
+| Method | Endpoint | Body | Headers | Response |
+|--------|----------|------|---------|----------|
+| **POST** | `/api/test` | - | - | `"test"` |
+
+---
+
+## 🔑 Authorization
+
+Tüm korumalı endpointlerde aşağıdaki header kullanılmalıdır:
+
