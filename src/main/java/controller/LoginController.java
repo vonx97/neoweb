@@ -1,6 +1,9 @@
 package controller;
 
+import com.neosoft.neoweb.entity.Role;
+import com.neosoft.neoweb.entity.UserSession;
 import com.neosoft.neoweb.repository.UserRepository;
+import com.neosoft.neoweb.repository.UserSessionRepository;
 import com.neosoft.neoweb.entity.User;
 import com.neosoft.neoweb.model.LoginRequest;
 import com.neosoft.neoweb.model.LoginResponse;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,9 +28,11 @@ public class LoginController {
 
 
     private final UserRepository userRepository;
+    private final UserSessionRepository sessionRepository;
 
-    public LoginController(UserRepository userRepository) {
+    public LoginController(UserRepository userRepository, UserSessionRepository sessionRepository) {
         this.userRepository = userRepository;
+        this.sessionRepository = sessionRepository;
     }
 
     @PostMapping("/login")
@@ -39,20 +45,30 @@ public class LoginController {
             User user = userOpt.get();
             if (Neocryptor.verifyStoredPassword(user.getPassword(),request.getPassword())) {
 
-                String accessToken = JwtUtil.generateToken(user.getUsername());
+                String accessToken = JwtUtil.generateToken(user.getUsername(),
+                        user.getRoles().stream().map(Role::getName).toList());
                 String refreshToken = UUID.randomUUID().toString();
 
-                user.setRefreshToken(refreshToken); // Refresh token'ı DB'ye yaz
-                userRepository.save(user);
+                // UserSession güncelle / oluştur
+                UserSession session = sessionRepository.findByUser(user)
+                        .orElseGet(() -> {
+                            UserSession s = new UserSession();
+                            s.setUser(user);
+                            return s;
+                        });
 
-                return new LoginResponse(true, "Giriş başarılı", accessToken, refreshToken);
+                session.setRefreshToken(refreshToken);
+                session.setLastLoginDate(LocalDateTime.now());
+                sessionRepository.save(session);
+
+                return new LoginResponse(true, "Giriş başarılı", accessToken, refreshToken,user.getRoles().stream().map(Role::getName).toList());
 
             }
 
         }
 
 
-        return new LoginResponse(false, "Kullanıcı adı veya şifre hatalı", null, null);
+        return new LoginResponse(false, "Kullanıcı adı veya şifre hatalı", null, null,null);
     }
 
     @PostMapping("/refresh-token")
@@ -68,10 +84,13 @@ public class LoginController {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            if (refreshToken.equals(user.getRefreshToken())) {
-                String newAccessToken = JwtUtil.generateToken(user.getRefreshToken());
+            Optional<UserSession> sessionOpt = sessionRepository.findByUserAndRefreshToken(user, refreshToken);
+
+            if (sessionOpt.isPresent()) {
+                String newAccessToken = JwtUtil.generateToken(user.getUsername(),user.getRoles().stream().map(Role::getName).toList());
                 return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
             }
+
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Geçersiz refresh token");

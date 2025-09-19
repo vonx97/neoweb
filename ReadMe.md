@@ -36,13 +36,30 @@
   - Dosya indirirken `Content-Length` header’ı eklenerek istemcinin indirme ilerlemesini takip etmesi sağlandı.
   - Tüm güncelleme endpointleri JWT ile korundu, token doğrulaması yapıldı.
 
+## Yapılan İşler (2025-09-19)
 
+- **JWT ile Rol Bazlı Authentication**
+  - Kullanıcı girişinde JWT token üretimi sırasında roller claim olarak eklendi.
+  - Rollerin başına `"ROLE_"` prefix’i token üretimi sırasında ekleniyor.
+  - JWT filter’ı ile gelen isteklerde token doğrulandı ve roller SecurityContext’e set edildi.
+
+- **Method-level Security ile Endpoint Koruma**
+  - `@EnableMethodSecurity` aktifleştirildi.
+  - `@PreAuthorize` annotation’ları ile rol bazlı erişim kontrolü sağlandı.
+  - Örnek: `/neoweb/userList` endpoint’i yalnızca `ADMIN` rolüne sahip kullanıcılar tarafından erişilebilir.
+
+- **UserController Güncellemesi**
+  - `/userList` endpoint’i `@PreAuthorize("hasRole('ADMIN')")` ile korundu.
+  - Admin olmayan kullanıcılar artık bu endpoint’e erişemiyor.
+
+- **SecurityConfig Güncellemesi**
+  - CSRF devre dışı bırakıldı.
+  - `/login` ve `/refresh-token` endpoint’leri herkese açık bırakıldı.
+  - Diğer tüm endpoint’ler authentication gerektiriyor.
+  - Session yönetimi **stateless** olarak ayarlandı.
+  - JWT filter’ı, `UsernamePasswordAuthenticationFilter` öncesine eklendi.
+  - 
 # ENDPOINTLER
-
-
-Bu proje Spring Boot ile geliştirilmiş bir backend uygulamasıdır. Aşağıda mevcut endpointler listelenmiştir.
-
----
 
 ## 🔐 Authentication
 
@@ -50,6 +67,14 @@ Bu proje Spring Boot ile geliştirilmiş bir backend uygulamasıdır. Aşağıda
 |--------|----------|------|---------|----------|
 | **POST** | `/neoweb/login` | ```json { "username": "user", "password": "pass" } ``` | - | ```json { "success": true, "message": "Giriş başarılı", "token": "...", "refreshToken": "..." } ``` |
 | **POST** | `/neoweb/refresh-token` | ```json { "username": "user", "refreshToken": "..." } ``` | - | ```json { "accessToken": "..." } ``` |
+
+---
+
+## 👤 User API (Rol Bazlı)
+
+| Method | Endpoint | Body | Headers | Response | Rol Gereksinimi |
+|--------|----------|------|---------|----------|----------------|
+| **GET** | `/neoweb/userList` | - | `Authorization: Bearer <token>` | Liste<User> | `ADMIN` |
 
 ---
 
@@ -75,7 +100,5 @@ Bu proje Spring Boot ile geliştirilmiş bir backend uygulamasıdır. Aşağıda
 | Method | Endpoint | Body | Headers | Response |
 |--------|----------|------|---------|----------|
 | **POST** | `/api/test` | - | - | `"test"` |
-
----
 
 

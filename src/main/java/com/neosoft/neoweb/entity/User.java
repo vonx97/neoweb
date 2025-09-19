@@ -1,21 +1,29 @@
 package com.neosoft.neoweb.entity;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "USERS")
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name="creation_date")
     private String creationDate;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String surname;
 
-    @Column(name = "IDENTITY_NUMBER")
+    @Column(name = "identity_number")
     private String identityNumber;
+
     private String country;
     private String city;
     private String district;
@@ -23,14 +31,25 @@ public class User {
     private String email;
     private String phone;
 
-    @Column(unique = true)
+    @Column(name="user_name",unique = true)
     private String username;
     private String password;
-    private String lastLoginDate;
 
-    @Column(length = 512)
-    private String refreshToken;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 
     public int getId() {
         return id;
@@ -120,7 +139,6 @@ public class User {
         this.phone = phone;
     }
 
-
     public String getUsername() {
         return username;
     }
@@ -137,19 +155,5 @@ public class User {
         this.password = password;
     }
 
-    public String getLastLoginDate() {
-        return lastLoginDate;
-    }
 
-    public void setLastLoginDate(String lastLoginDate) {
-        this.lastLoginDate = lastLoginDate;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
 }
