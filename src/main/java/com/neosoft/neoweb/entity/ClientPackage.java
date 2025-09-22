@@ -1,5 +1,7 @@
 package com.neosoft.neoweb.entity;
 
+import enums.PackageStatus;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 

@@ -102,3 +102,45 @@
 | **POST** | `/api/test` | - | - | `"test"` |
 
 
+# Subscription & Payment API (2025-09-22)
+
+## 📃 DTO Kullanımı
+
+- **SubscriptionRequestDTO**
+  - `userId` (Integer) – Kullanıcı ID
+  - `planId` (Integer) – Plan ID
+  - `paymentMethod` (PaymentMethods enum) – Ödeme yöntemi
+  - `currency` (CurrencyType enum) – Para birimi
+  - `autoRenew` (Boolean) – Opsiyonel, default true
+
+- **SubscriptionUpdateDTO**
+  - `subscriptionId` (Integer) – Güncellenecek abonelik
+  - `planId` (Integer) – Opsiyonel yeni plan
+  - `status` (SubscriptionStatus enum) – Opsiyonel
+  - `autoRenew` (Boolean) – Opsiyonel
+  - `paymentMethod` (PaymentMethods enum) – Opsiyonel ödeme değişimi
+  - `currency` (CurrencyType enum) – Opsiyonel ödeme değişimi
+
+---
+
+## ➕ Create Subscription
+
+| Method | Endpoint | Body | Headers | Response |
+|--------|----------|------|---------|----------|
+| **POST** | `/subscriptions/create` | ```json { "userId": 1, "planId": 2, "paymentMethod": "CREDIT_CARD", "currency": "TRY", "autoRenew": true } ``` | `Authorization: Bearer <token>` | `Subscription` entity döner, Payment kaydı otomatik oluşturulur |
+
+---
+
+## ✏️ Update Subscription
+
+| Method | Endpoint | Body | Headers | Response |
+|--------|----------|------|---------|----------|
+| **PUT** | `/subscriptions/update` | ```json { "subscriptionId": 10, "planId": 3, "status": "ACTIVE", "autoRenew": false, "paymentMethod": "BANK_TRANSFER", "currency": "USD" } ``` | `Authorization: Bearer <token>` | Güncellenmiş `Subscription` entity döner, Payment değişiklikleri opsiyonel olarak uygulanır |
+
+---
+
+## 🗑️ Delete Subscription
+
+| Method | Endpoint | Body | Headers | Response |
+|--------|----------|------|---------|----------|
+| **DELETE** | `/subscriptions/delete/{id}` | - | `Authorization: Bearer <token>` | Başarılı ise `"Subscription deleted successfully"` döner. İlişkili Payment kayıtları manuel veya cascade ile silinir |

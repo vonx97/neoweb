@@ -19,6 +19,38 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User addUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public User updateUser(int id, User updatedUser) {
+
+        return userRepository.findById(id).map(user -> {
+            user.setName(updatedUser.getName());
+            user.setSurname(updatedUser.getSurname());
+            user.setEmail(updatedUser.getEmail());
+            user.setPhone(updatedUser.getPhone());
+            user.setAddress(updatedUser.getAddress());
+            user.setCity(updatedUser.getCity());
+            user.setCountry(updatedUser.getCountry());
+            user.setDistrict(updatedUser.getDistrict());
+            user.setIdentityNumber(updatedUser.getIdentityNumber());
+            user.setUsername(updatedUser.getUsername());
+            user.setPassword(updatedUser.getPassword());
+            user.setRoles(updatedUser.getRoles());
+
+            return userRepository.save(user);
+        }).orElseThrow(() -> new RuntimeException("User not found"));
+
+    }
+
+    public void deleteUser(int id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("User not found");
+        }
+        userRepository.deleteById(id);
+    }
+
 
 
 

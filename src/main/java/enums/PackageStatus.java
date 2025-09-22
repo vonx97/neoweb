@@ -1,4 +1,4 @@
-package com.neosoft.neoweb.entity;
+package enums;
 
 public enum PackageStatus {
 
