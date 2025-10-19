@@ -68,9 +68,9 @@ public class VersionController {
 
         try {
             String username = JwtUtil.validateTokenAndGetUsername(jwt);
-            return username != null;  // Token geçerli ve doğrulanmış demek
+            return username != null;  // Token gecerli ve dogrulanmis demek
         } catch (Exception e) {
-            return false;  // Token geçersiz
+            return false;  // Token gecersiz
         }
     }
 

@@ -6,12 +6,12 @@ import enums.SubscriptionStatus;
 
 public class SubscriptionUpdateDTO {
 
-    private Integer subscriptionId; // hangi abonelik güncellenecek
+    private Integer subscriptionId; // hangi abonelik guncellenecek
     private Integer planId;          // opsiyonel yeni plan
     private SubscriptionStatus status;
     private Boolean autoRenew;       // opsiyonel
-    private PaymentMethods paymentMethod; // opsiyonel ödeme değişimi
-    private CurrencyType currency;        // opsiyonel ödeme değişimi
+    private PaymentMethods paymentMethod; // opsiyonel ödeme degisimi
+    private CurrencyType currency;        // opsiyonel ödeme degisimi
 
 
     public Integer getSubscriptionId() {

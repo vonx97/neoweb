@@ -24,7 +24,7 @@ public class SubscriptionPlan {
     private int billingCycle;
 
     @Column(name = "max_users", nullable = false)
-    private String maxUsers;
+    private int maxUsers;
 
     public int getId() {
         return id;
@@ -66,11 +66,11 @@ public class SubscriptionPlan {
         this.billingCycle = billingCycle;
     }
 
-    public String getMaxUsers() {
+    public int getMaxUsers() {
         return maxUsers;
     }
 
-    public void setMaxUsers(String maxUsers) {
+    public void setMaxUsers(int maxUsers) {
         this.maxUsers = maxUsers;
     }
 }

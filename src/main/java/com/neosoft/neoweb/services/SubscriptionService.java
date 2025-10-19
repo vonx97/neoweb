@@ -1,5 +1,6 @@
 package com.neosoft.neoweb.services;
 
+import com.neosoft.neoweb.dto.SubscriptionRenewDTO;
 import com.neosoft.neoweb.dto.SubscriptionRequestDTO;
 import com.neosoft.neoweb.dto.SubscriptionUpdateDTO;
 import com.neosoft.neoweb.entity.Payment;
@@ -79,7 +80,7 @@ public class SubscriptionService {
         Subscription subscription = subscriptionRepository.findById(dto.getSubscriptionId())
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));
 
-        // Plan değişikliği varsa
+        // Plan değisikliği varsa
         if (dto.getPlanId() != null) {
             SubscriptionPlan plan = planRepository.findById(dto.getPlanId())
                     .orElseThrow(() -> new RuntimeException("Plan not found"));
@@ -122,11 +123,54 @@ public class SubscriptionService {
         Subscription subscription = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));
 
-        // İlişkili ödemeleri sil
+        // İliskili odemeleri sil
         paymentRepository.deleteAll(paymentRepository.findBySubscription(subscription));
 
         subscriptionRepository.delete(subscription);
     }
+
+    @Transactional
+    public Subscription renewSubscription(SubscriptionRenewDTO dto) {
+        // 1️⃣ Aboneliği bul
+        Subscription subscription = subscriptionRepository.findById(dto.getSubscriptionId())
+                .orElseThrow(() -> new RuntimeException("Subscription not found"));
+
+        // 2️⃣ Abonelik durumu kontrolü
+        if (subscription.getStatus() != SubscriptionStatus.ACTIVE &&
+                subscription.getStatus() != SubscriptionStatus.EXPIRED) {
+            throw new RuntimeException("Subscription cannot be renewed with status: " + subscription.getStatus());
+        }
+
+        // 3️⃣ Plan bilgilerini al
+        SubscriptionPlan plan = planRepository.findByName(subscription.getPlanName())
+                .orElseThrow(() -> new RuntimeException("Plan not found"));
+
+        // 4️⃣ Yeni endDate hesapla
+        LocalDateTime newEndDate = subscription.getEndDate().isAfter(LocalDateTime.now())
+                ? subscription.getEndDate().plusMonths(plan.getBillingCycle())
+                : LocalDateTime.now().plusMonths(plan.getBillingCycle());
+
+        subscription.setEndDate(newEndDate);
+        subscription.setStatus(SubscriptionStatus.ACTIVE);
+
+        // 5️⃣ Aboneliği kaydet
+        Subscription savedSubscription = subscriptionRepository.save(subscription);
+
+        // 6️⃣ Yeni ödeme kaydı oluştur
+        Payment payment = new Payment();
+        payment.setSubscription(savedSubscription);
+        payment.setAmount(plan.getPrice());
+        payment.setCurrency(dto.getCurrency() != null ? dto.getCurrency() : CurrencyType.USD);
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setPaymentMethod(dto.getPaymentMethod() != null ? dto.getPaymentMethod() : PaymentMethods.CREDIT_CARD);
+        payment.setStatus(PaymentStatus.SUCCESS);
+
+        paymentRepository.save(payment);
+
+        // 7️⃣ Güncellenmiş aboneliği döndür
+        return savedSubscription;
+    }
+
 
 
 }

@@ -49,7 +49,7 @@ public class LoginController {
                         user.getRoles().stream().map(Role::getName).toList());
                 String refreshToken = UUID.randomUUID().toString();
 
-                // UserSession güncelle / oluştur
+                // UserSession guncelle / olustur
                 UserSession session = sessionRepository.findByUser(user)
                         .orElseGet(() -> {
                             UserSession s = new UserSession();

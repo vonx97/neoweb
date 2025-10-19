@@ -18,5 +18,23 @@ public class LoginResponse {
         this.roles = roles;
     }
 
+    public boolean isSuccess() {
+        return success;
+    }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
 }
