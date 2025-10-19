@@ -13,10 +13,13 @@ import java.util.stream.Collectors;
 
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "buCokGucluVeEnAz32ByteUzunlugundaBirSecretKey!";
 
+
+    private static final String SECRET_KEY = "buCokGucluVeEnAz32ByteUzunlugundaBirSecretKey!";
     private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+
     private static final long validityInMs  = 60 * 60 * 1000; //60dk
+
 
     public static String generateToken(String username,List<String> roles) {
         return Jwts.builder()
@@ -31,14 +34,15 @@ public class JwtUtil {
 
 
 
-    public static String generateRefreshToken(String username) {
+    public static String generateRefreshToken(String username, long expirationMs) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 604800000))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     public static boolean validateToken(String token, String username) {
         String extractedUsername = Jwts.parserBuilder()

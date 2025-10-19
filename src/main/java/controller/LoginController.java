@@ -47,7 +47,7 @@ public class LoginController {
 
                 String accessToken = JwtUtil.generateToken(user.getUsername(),
                         user.getRoles().stream().map(Role::getName).toList());
-                String refreshToken = JwtUtil.generateRefreshToken(user.getUsername());
+                String refreshToken = JwtUtil.generateRefreshToken(user.getUsername(),604800000);
 
                 // UserSession guncelle / olustur
                 UserSession session = sessionRepository.findByUser(user)
