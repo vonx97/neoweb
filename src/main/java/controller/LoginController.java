@@ -45,9 +45,10 @@ public class LoginController {
             User user = userOpt.get();
             if (Neocryptor.verifyStoredPassword(user.getPassword(),request.getPassword())) {
 
-                String accessToken = JwtUtil.generateToken(user.getUsername(),
+                String accessToken = JwtUtil.generateAccessToken(user.getUsername(),
                         user.getRoles().stream().map(Role::getName).toList());
-                String refreshToken = JwtUtil.generateRefreshToken(user.getUsername(),604800000);
+
+                String refreshToken = JwtUtil.generateRefreshToken(user.getUsername());
 
                 // UserSession guncelle / olustur
                 UserSession session = sessionRepository.findByUser(user)
@@ -87,7 +88,7 @@ public class LoginController {
             Optional<UserSession> sessionOpt = sessionRepository.findByUserAndRefreshToken(user, refreshToken);
 
             if (sessionOpt.isPresent()) {
-                String newAccessToken = JwtUtil.generateToken(user.getUsername(),user.getRoles().stream().map(Role::getName).toList());
+                String newAccessToken = JwtUtil.generateAccessToken(user.getUsername(),user.getRoles().stream().map(Role::getName).toList());
                 return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
             }
 
