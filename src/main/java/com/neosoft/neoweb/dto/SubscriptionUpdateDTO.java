@@ -4,16 +4,29 @@ import enums.CurrencyType;
 import enums.PaymentMethods;
 import enums.SubscriptionStatus;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+
+/**
+ * SubscriptionUpdateDTO
+ *
+ * Bir aboneliği güncellemek için kullanılır.
+ * Bazı alanlar opsiyoneldir (örneğin: planId, paymentMethod, currency),
+ * ancak subscriptionId zorunludur.
+ */
 public class SubscriptionUpdateDTO {
 
-    private Integer subscriptionId; // hangi abonelik guncellenecek
-    private Integer planId;          // opsiyonel yeni plan
-    private SubscriptionStatus status;
-    private Boolean autoRenew;       // opsiyonel
-    private PaymentMethods paymentMethod; // opsiyonel ödeme degisimi
-    private CurrencyType currency;        // opsiyonel ödeme degisimi
+    @NotNull(message = "Abonelik ID'si belirtilmelidir")
+    @Positive(message = "Abonelik ID'si pozitif olmalıdır")
+    private Integer subscriptionId;
 
+    private Integer planId; // opsiyonel: farklı bir plana geçiş yapılabilir
+    private SubscriptionStatus status; // opsiyonel: ACTIVE, PAUSED, CANCELED vb.
+    private Boolean autoRenew; // opsiyonel: otomatik yenileme açık/kapalı
+    private PaymentMethods paymentMethod; // opsiyonel: yeni ödeme yöntemi
+    private CurrencyType currency; // opsiyonel: farklı para birimi
 
+    // Getters & Setters
     public Integer getSubscriptionId() {
         return subscriptionId;
     }

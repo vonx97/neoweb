@@ -12,5 +12,5 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Long> 
 
     Optional<UserSession> findByUserAndRefreshToken(User user, String refreshToken);
 
-
+    Optional<UserSession> findByRefreshToken(String refreshToken);
 }

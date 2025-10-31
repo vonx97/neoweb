@@ -26,12 +26,13 @@ public class JwtUtil {
     public static String generateAccessToken(String username, List<String> roles) {
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", roles.stream().map(r -> "ROLE_" + r).collect(Collectors.toList()))
+                .claim("roles", roles) // ROLE_ prefix yok!
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_MS))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
 
 
@@ -76,7 +77,10 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
 
-        return claims.get("roles", List.class); // JSON array’i List<String> olarak alır
+        return ((List<?>) claims.get("roles")).stream()
+                .map(Object::toString)
+                .collect(Collectors.toList());
+
     }
 
 

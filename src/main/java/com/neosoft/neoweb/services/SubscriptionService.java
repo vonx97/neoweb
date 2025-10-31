@@ -18,9 +18,19 @@ import enums.SubscriptionStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Service class responsible for managing subscription lifecycle operations.
+ * <p>
+ * Provides functionality for:
+ * <ul>
+ *     <li>Creating new subscriptions</li>
+ *     <li>Updating existing subscriptions</li>
+ *     <li>Deleting subscriptions</li>
+ *     <li>Renewing subscriptions</li>
+ * </ul>
+ */
 @Service
 public class SubscriptionService {
 
@@ -39,6 +49,12 @@ public class SubscriptionService {
         this.paymentRepository = paymentRepository;
     }
 
+    /**
+     * Creates a new subscription and an initial payment record.
+     *
+     * @param dto Subscription creation request payload
+     * @return The saved subscription entity
+     */
     @Transactional
     public Subscription createSubscription(SubscriptionRequestDTO dto) {
 
@@ -53,7 +69,7 @@ public class SubscriptionService {
 
         Subscription subscription = new Subscription();
         subscription.setCustomer(user);
-        subscription.setPlanName(plan.getName());
+        subscription.setPlan(plan);
         subscription.setStartDate(startDate);
         subscription.setEndDate(endDate);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
@@ -61,6 +77,7 @@ public class SubscriptionService {
 
         Subscription savedSubscription = subscriptionRepository.save(subscription);
 
+        // Create initial payment record
         Payment payment = new Payment();
         payment.setSubscription(savedSubscription);
         payment.setAmount(plan.getPrice());
@@ -74,43 +91,50 @@ public class SubscriptionService {
         return savedSubscription;
     }
 
+    /**
+     * Updates an existing subscription (plan, status, auto-renew, payment info).
+     *
+     * @param dto Update request payload
+     * @return The updated subscription
+     */
     @Transactional
     public Subscription updateSubscription(SubscriptionUpdateDTO dto) {
 
         Subscription subscription = subscriptionRepository.findById(dto.getSubscriptionId())
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));
 
-        // Plan değisikliği varsa
+        // Update plan if provided
         if (dto.getPlanId() != null) {
             SubscriptionPlan plan = planRepository.findById(dto.getPlanId())
                     .orElseThrow(() -> new RuntimeException("Plan not found"));
-            subscription.setPlanName(plan.getName());
-            // startDate ve endDate'ı yeniden ayarlayabilirsin
+            subscription.setPlan(plan);
             LocalDateTime startDate = subscription.getStartDate();
             subscription.setEndDate(startDate.plusMonths(plan.getBillingCycle()));
         }
 
-        // Status güncelleme
+        // Update status
         if (dto.getStatus() != null) {
             subscription.setStatus(dto.getStatus());
         }
 
-        // Auto-renew güncelleme
+        // Update auto-renew
         if (dto.getAutoRenew() != null) {
             subscription.setAutoRenew(dto.getAutoRenew());
         }
 
         Subscription savedSubscription = subscriptionRepository.save(subscription);
 
-        // Ödeme güncelleme opsiyonel
+        // Update latest payment if applicable
         if (dto.getPaymentMethod() != null || dto.getCurrency() != null) {
-            // son ödeme kaydını al
-            Payment payment = paymentRepository.findBySubscription(savedSubscription)
-                    .stream().reduce((first, second) -> second).orElse(null);
+            Payment payment = paymentRepository
+                    .findTopBySubscriptionOrderByPaymentDateDesc(savedSubscription)
+                    .orElse(null);
 
             if (payment != null) {
-                if (dto.getPaymentMethod() != null) payment.setPaymentMethod(dto.getPaymentMethod());
-                if (dto.getCurrency() != null) payment.setCurrency(dto.getCurrency());
+                if (dto.getPaymentMethod() != null)
+                    payment.setPaymentMethod(dto.getPaymentMethod());
+                if (dto.getCurrency() != null)
+                    payment.setCurrency(dto.getCurrency());
                 paymentRepository.save(payment);
             }
         }
@@ -118,34 +142,39 @@ public class SubscriptionService {
         return savedSubscription;
     }
 
+    /**
+     * Deletes a subscription and all related payments.
+     *
+     * @param subscriptionId ID of the subscription to delete
+     */
     @Transactional
     public void deleteSubscription(int subscriptionId) {
         Subscription subscription = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));
 
-        // İliskili odemeleri sil
         paymentRepository.deleteAll(paymentRepository.findBySubscription(subscription));
-
         subscriptionRepository.delete(subscription);
     }
 
+    /**
+     * Renews an active or expired subscription and records a new payment.
+     *
+     * @param dto Renew request payload
+     * @return Updated subscription entity
+     */
     @Transactional
     public Subscription renewSubscription(SubscriptionRenewDTO dto) {
-        // 1️⃣ Aboneliği bul
         Subscription subscription = subscriptionRepository.findById(dto.getSubscriptionId())
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));
 
-        // 2️⃣ Abonelik durumu kontrolü
         if (subscription.getStatus() != SubscriptionStatus.ACTIVE &&
                 subscription.getStatus() != SubscriptionStatus.EXPIRED) {
             throw new RuntimeException("Subscription cannot be renewed with status: " + subscription.getStatus());
         }
 
-        // 3️⃣ Plan bilgilerini al
-        SubscriptionPlan plan = planRepository.findByName(subscription.getPlanName())
+        SubscriptionPlan plan = planRepository.findById(subscription.getPlan().getId())
                 .orElseThrow(() -> new RuntimeException("Plan not found"));
 
-        // 4️⃣ Yeni endDate hesapla
         LocalDateTime newEndDate = subscription.getEndDate().isAfter(LocalDateTime.now())
                 ? subscription.getEndDate().plusMonths(plan.getBillingCycle())
                 : LocalDateTime.now().plusMonths(plan.getBillingCycle());
@@ -153,10 +182,9 @@ public class SubscriptionService {
         subscription.setEndDate(newEndDate);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
 
-        // 5️⃣ Aboneliği kaydet
         Subscription savedSubscription = subscriptionRepository.save(subscription);
 
-        // 6️⃣ Yeni ödeme kaydı oluştur
+        // Create renewal payment
         Payment payment = new Payment();
         payment.setSubscription(savedSubscription);
         payment.setAmount(plan.getPrice());
@@ -167,10 +195,6 @@ public class SubscriptionService {
 
         paymentRepository.save(payment);
 
-        // 7️⃣ Güncellenmiş aboneliği döndür
         return savedSubscription;
     }
-
-
-
 }
