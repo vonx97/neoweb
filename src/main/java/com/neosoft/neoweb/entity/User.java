@@ -44,24 +44,34 @@ public class User {
     @JsonIgnore
     private String password;
 
+    public User(String username, String password, String name, String surname,LocalDateTime creationDate) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.surname = surname;
+        this.creationDate = creationDate;
+    }
+
+
     @ElementCollection(targetClass = RoleName.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Set<RoleName> roles = new HashSet<>();
 
+    protected User() {}
+
+
+
     // === Getters & Setters ===
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
-    public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
 
     public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
 
     public String getSurname() { return surname; }
-    public void setSurname(String surname) { this.surname = surname; }
 
     public String getIdentityNumber() { return identityNumber; }
     public void setIdentityNumber(String identityNumber) { this.identityNumber = identityNumber; }
@@ -85,10 +95,8 @@ public class User {
     public void setPhone(String phone) { this.phone = phone; }
 
     public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
 
     public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
 
     public Set<RoleName> getRoles() { return roles; }
     public void setRoles(Set<RoleName> roles) { this.roles = roles; }

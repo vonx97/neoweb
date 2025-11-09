@@ -26,8 +26,9 @@ public class UserService {
     public User updateUser(int id, User updatedUser) {
 
         return userRepository.findById(id).map(user -> {
-            user.setName(updatedUser.getName());
-            user.setSurname(updatedUser.getSurname());
+
+            user = new User(updatedUser.getUsername(),updatedUser.getPassword(),updatedUser.getName(),updatedUser.getSurname(),updatedUser.getCreationDate());
+
             user.setEmail(updatedUser.getEmail());
             user.setPhone(updatedUser.getPhone());
             user.setAddress(updatedUser.getAddress());
@@ -35,8 +36,6 @@ public class UserService {
             user.setCountry(updatedUser.getCountry());
             user.setDistrict(updatedUser.getDistrict());
             user.setIdentityNumber(updatedUser.getIdentityNumber());
-            user.setUsername(updatedUser.getUsername());
-            user.setPassword(updatedUser.getPassword());
             user.setRoles(updatedUser.getRoles());
 
             return userRepository.save(user);

@@ -73,12 +73,8 @@ public class LoginController {
 
         String refreshToken = UUID.randomUUID().toString();
 
-        UserSession session = new UserSession();
-        session.setUser(user);
-        session.setRefreshToken(refreshToken);
-        session.setCreatedAt(LocalDateTime.now());
-        session.setExpiresAt(LocalDateTime.now().plusDays(7));
-        session.setRevoked(false);
+        UserSession session = new UserSession(user,refreshToken,LocalDateTime.now().plusDays(7),false,LocalDateTime.now());
+        
         sessionRepository.save(session);
 
         // enum isimlerini string olarak al

@@ -30,17 +30,18 @@ public class UserSession {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public UserSession() {}
+    protected UserSession() {}
 
-    // ✅ Custom constructor (bizim kullanımımız için)
-    public UserSession(User user, String refreshToken, LocalDateTime lastLoginDate,
-                       LocalDateTime expiresAt, boolean revoked) {
+
+    public UserSession(User user,String refreshToken, LocalDateTime expiresAt, boolean revoked, LocalDateTime createdAt) {
         this.user = user;
         this.refreshToken = refreshToken;
-        this.lastLoginDate = lastLoginDate;
         this.expiresAt = expiresAt;
         this.revoked = revoked;
+        this.createdAt = createdAt;
     }
+
+
 
 
     // Getters and Setters
@@ -48,7 +49,6 @@ public class UserSession {
     public void setId(Long id) { this.id = id; }
 
     public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
 
     public LocalDateTime getLastLoginDate() { return lastLoginDate; }
     public void setLastLoginDate(LocalDateTime lastLoginDate) { this.lastLoginDate = lastLoginDate; }
@@ -57,13 +57,11 @@ public class UserSession {
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
 
     public LocalDateTime getExpiresAt() { return expiresAt; }
-    public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
 
     public boolean isRevoked() { return revoked; }
-    public void setRevoked(boolean revoked) { this.revoked = revoked; }
+    public void setRevoked(boolean revoked) {this.revoked = revoked;}
 
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
 
 }

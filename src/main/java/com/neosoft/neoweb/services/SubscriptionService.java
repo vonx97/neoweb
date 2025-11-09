@@ -78,14 +78,7 @@ public class SubscriptionService {
         Subscription savedSubscription = subscriptionRepository.save(subscription);
 
         // Create initial payment record
-        Payment payment = new Payment();
-        payment.setSubscription(savedSubscription);
-        payment.setAmount(plan.getPrice());
-        payment.setCurrency(dto.getCurrency());
-        payment.setPaymentDate(LocalDateTime.now());
-        payment.setPaymentMethod(dto.getPaymentMethod());
-        payment.setStatus(PaymentStatus.SUCCESS);
-
+        Payment payment = new Payment(savedSubscription,plan.getPrice(), dto.getCurrency(),LocalDateTime.now(),dto.getPaymentMethod(),PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
 
         return savedSubscription;
@@ -185,14 +178,7 @@ public class SubscriptionService {
         Subscription savedSubscription = subscriptionRepository.save(subscription);
 
         // Create renewal payment
-        Payment payment = new Payment();
-        payment.setSubscription(savedSubscription);
-        payment.setAmount(plan.getPrice());
-        payment.setCurrency(dto.getCurrency() != null ? dto.getCurrency() : CurrencyType.USD);
-        payment.setPaymentDate(LocalDateTime.now());
-        payment.setPaymentMethod(dto.getPaymentMethod() != null ? dto.getPaymentMethod() : PaymentMethods.CREDIT_CARD);
-        payment.setStatus(PaymentStatus.SUCCESS);
-
+        Payment payment = new Payment(savedSubscription,plan.getPrice(), dto.getCurrency() != null ? dto.getCurrency() : CurrencyType.USD,LocalDateTime.now(),dto.getPaymentMethod(),PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
 
         return savedSubscription;

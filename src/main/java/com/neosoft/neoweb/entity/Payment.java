@@ -47,29 +47,41 @@ public class Payment {
         this.createdAt = LocalDateTime.now();
     }
 
+
+    protected Payment() {
+
+    }
+
+
+    public Payment(Subscription subscription, BigDecimal amount, CurrencyType currency, LocalDateTime paymentDate, PaymentMethods paymentMethod, PaymentStatus status) {
+        this.subscription = subscription;
+        this.amount = amount;
+        this.currency = currency;
+        this.paymentDate = paymentDate;
+        this.paymentMethod = paymentMethod;
+        this.status = status;
+
+    }
+
+
     // === GETTERS & SETTERS ===
 
     public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
 
     public Subscription getSubscription() { return subscription; }
-    public void setSubscription(Subscription subscription) { this.subscription = subscription; }
 
     public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
 
     public CurrencyType getCurrency() { return currency; }
     public void setCurrency(CurrencyType currency) { this.currency = currency; }
 
     public LocalDateTime getPaymentDate() { return paymentDate; }
-    public void setPaymentDate(LocalDateTime paymentDate) { this.paymentDate = paymentDate; }
 
     public PaymentMethods getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(PaymentMethods paymentMethod) { this.paymentMethod = paymentMethod; }
 
     public PaymentStatus getStatus() { return status; }
-    public void setStatus(PaymentStatus status) { this.status = status; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
 }
