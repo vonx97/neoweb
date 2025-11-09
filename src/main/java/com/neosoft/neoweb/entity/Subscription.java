@@ -38,18 +38,27 @@ public class Subscription {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    public Subscription(User user,SubscriptionPlan plan, LocalDateTime startDate, LocalDateTime endDate, SubscriptionStatus status, boolean autoRenew) {
+        this.customer = user;
+        this.plan = plan;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = status;
+        this.autoRenew = autoRenew;
+
+    }
+
+    protected Subscription() {}
+
     // === GETTER / SETTER ===
     public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
 
     public User getCustomer() { return customer; }
-    public void setCustomer(User customer) { this.customer = customer; }
 
     public SubscriptionPlan getPlan() { return plan; }
     public void setPlan(SubscriptionPlan plan) { this.plan = plan; }
 
     public LocalDateTime getStartDate() { return startDate; }
-    public void setStartDate(LocalDateTime startDate) { this.startDate = startDate; }
 
     public LocalDateTime getEndDate() { return endDate; }
     public void setEndDate(LocalDateTime endDate) { this.endDate = endDate; }
@@ -58,8 +67,9 @@ public class Subscription {
     public void setStatus(SubscriptionStatus status) { this.status = status; }
 
     public boolean isAutoRenew() { return autoRenew; }
-    public void setAutoRenew(boolean autoRenew) { this.autoRenew = autoRenew; }
+    public void setAutoRenew(boolean autoRenew) {this.autoRenew = autoRenew;}
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

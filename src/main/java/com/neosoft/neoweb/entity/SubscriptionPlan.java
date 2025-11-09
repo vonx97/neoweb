@@ -34,6 +34,16 @@ public class SubscriptionPlan {
     @JsonIgnore // JSON döngüsünü önler
     private List<Subscription> subscriptions = new ArrayList<>();
 
+    public SubscriptionPlan(String name, String description, BigDecimal price, int billingCycle, int maxUsers) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.billingCycle = billingCycle;
+        this.maxUsers = maxUsers;
+    }
+
+    protected SubscriptionPlan() {}
+
     // === GETTER / SETTER ===
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

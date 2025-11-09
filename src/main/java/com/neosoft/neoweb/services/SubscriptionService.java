@@ -67,14 +67,7 @@ public class SubscriptionService {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusMonths(plan.getBillingCycle());
 
-        Subscription subscription = new Subscription();
-        subscription.setCustomer(user);
-        subscription.setPlan(plan);
-        subscription.setStartDate(startDate);
-        subscription.setEndDate(endDate);
-        subscription.setStatus(SubscriptionStatus.ACTIVE);
-        subscription.setAutoRenew(dto.isAutoRenew());
-
+        Subscription subscription = new Subscription(user,plan,startDate,endDate,SubscriptionStatus.ACTIVE,dto.isAutoRenew());
         Subscription savedSubscription = subscriptionRepository.save(subscription);
 
         // Create initial payment record
