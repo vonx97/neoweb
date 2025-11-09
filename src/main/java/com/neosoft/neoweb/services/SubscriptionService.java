@@ -59,10 +59,10 @@ public class SubscriptionService {
     public Subscription createSubscription(SubscriptionRequestDTO dto) {
 
         User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         SubscriptionPlan plan = planRepository.findById(dto.getPlanId())
-                .orElseThrow(() -> new RuntimeException("Plan not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Plan not found"));
 
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusMonths(plan.getBillingCycle());

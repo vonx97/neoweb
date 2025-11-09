@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 @Service
 public class UpdateService {
@@ -19,19 +20,39 @@ public class UpdateService {
         this.properties = properties;
     }
 
+    /**
+     * Dosyadaki en son versiyonu alır.
+     */
     public String getLatestVersion() throws IOException {
-        return Files.readString(properties.getVersionFilePath()).trim();
+        Path versionFile = properties.getVersionFilePath();
+        if (!Files.exists(versionFile)) {
+            throw new IOException("Version file not found: " + versionFile);
+        }
+        return Files.readString(versionFile).trim();
     }
 
+    /**
+     * Verilen client sürümünün en güncel sürüm olup olmadığını kontrol eder.
+     */
     public boolean versionIsLatest(String clientVersion) throws IOException {
-        return getLatestVersion().equals(clientVersion);
+        return clientVersion != null && Objects.equals(clientVersion, getLatestVersion());
     }
 
+    /**
+     * Belirtilen sürüme ait update zip dosyasının yolunu döner.
+     */
     public Path getUpdateZip(String version) {
         return properties.getFolderPath().resolve("client-" + version + ".zip");
     }
 
+    /**
+     * Verilen dosyanın SHA-256 checksum'unu hesaplar.
+     */
     public String calculateChecksum(Path file) throws IOException, NoSuchAlgorithmException {
+        if (!Files.exists(file)) {
+            throw new IOException("File not found: " + file);
+        }
+
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         try (InputStream is = Files.newInputStream(file)) {
             byte[] buffer = new byte[8192];
@@ -40,13 +61,17 @@ public class UpdateService {
                 md.update(buffer, 0, len);
             }
         }
-        byte[] digest = md.digest();
-        return bytesToHex(digest);
+        return bytesToHex(md.digest());
     }
 
+    /**
+     * Byte array'ini hex string'e çevirir.
+     */
     private String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) sb.append(String.format("%02x", b));
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
         return sb.toString();
     }
 }

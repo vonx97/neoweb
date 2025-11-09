@@ -20,6 +20,10 @@ public class UserService {
     }
 
     public User addUser(User user) {
+        userRepository.findByUsername(user.getUsername())
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException("Username already exists");
+                });
         return userRepository.save(user);
     }
 
@@ -27,6 +31,15 @@ public class UserService {
 
         return userRepository.findById(id).map(user -> {
 
+            // Önce username başka bir kullanıcı tarafından kullanılıyor mu kontrol et
+            userRepository.findByUsername(updatedUser.getUsername())
+                    .ifPresent(existing -> {
+                        if (existing.getId() != id) { // Kendi kullanıcı adı değilse
+                            throw new IllegalArgumentException("Username already exists");
+                        }
+                    });
+
+            // Kullanıcıyı güncelle
             user = new User(updatedUser.getUsername(),updatedUser.getPassword(),updatedUser.getName(),updatedUser.getSurname(),updatedUser.getCreationDate());
 
             user.setEmail(updatedUser.getEmail());
